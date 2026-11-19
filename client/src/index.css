@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body {
+    margin: 0;
+    padding: 0;
+    background-color: #fbf9f1;
+    color: #1b1c17;
+    font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+}
+
+/* Neo-Brutalist UI Utility Classes */
+.neo-box {
+  border: 3px solid #111111;
+  box-shadow: 4px 4px 0px #111111;
+}
+
+.neo-box-sm {
+  border: 2px solid #111111;
+  box-shadow: 2px 2px 0px #111111;
+}
+
+.neo-box-lg {
+  border: 4px solid #111111;
+  box-shadow: 6px 6px 0px #111111;
+}
+
+.neo-btn {
+  border: 3px solid #111111;
+  box-shadow: 4px 4px 0px #111111;
+  transition: all 0.1s ease-in-out;
+}
+
+.neo-btn:active {
+  transform: translate(3px, 3px);
+  box-shadow: 0px 0px 0px #111111;
+}
+
+.neo-btn-sm {
+  border: 2px solid #111111;
+  box-shadow: 2px 2px 0px #111111;
+  transition: all 0.1s ease-in-out;
+}
+
+.neo-btn-sm:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px #111111;
+}
+
+/* Interactive Letter Tile */
+.letter-tile {
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  text-transform: uppercase;
+  border-radius: 0.75rem;
+  border: 3px solid #111111;
+  box-shadow: 3px 3px 0px #111111;
+  transition: all 0.15s ease-in-out;
+  user-select: none;
+}
+
+.letter-tile-idle {
+  background-color: #ffffff;
+  color: #111111;
+}
+
+.letter-tile-active {
+  background-color: #ffe17b;
+  color: #231b00;
+  transform: translateY(-4px);
+  box-shadow: 4px 4px 0px #111111;
+}
+
+.letter-tile-filled {
+  background-color: #eae8e0;
+  color: #111111;
+}
+
+.letter-tile-target {
+  background-color: #a0f973;
+  color: #072100;
+}
+
+.letter-tile-shifted {
+  background-color: #f45bd7;
+  color: #3a0032;
+  transform: translateY(-4px);
+  box-shadow: 4px 4px 0px #111111;
+}
+
+/* Hide scrollbar for clean UI */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
