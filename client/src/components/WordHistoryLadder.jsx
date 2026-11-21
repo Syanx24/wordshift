@@ -29,7 +29,7 @@ export default function WordHistoryLadder({
       {/* Horizontal Transformation Chain */}
       <div
         ref={scrollRef}
-        className="flex items-center gap-2 overflow-x-auto pb-2 pt-1 no-scrollbar select-none"
+        className="flex items-center gap-2 overflow-x-auto pb-3 pt-1.5 px-2 no-scrollbar select-none"
       >
         {/* Step 0: Starting word */}
         <div className="flex items-center shrink-0">
@@ -81,6 +81,9 @@ export default function WordHistoryLadder({
             </div>
           );
         })}
+
+        {/* Trailing spacer to ensure last word's box shadow has plenty of breathing room */}
+        <div className="w-2.5 shrink-0 pointer-events-none" aria-hidden="true" />
       </div>
     </div>
   );

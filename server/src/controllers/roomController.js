@@ -24,7 +24,7 @@ export const roomController = {
    */
   async createRoom(req, res) {
     try {
-      const { name, startingWord } = req.body;
+      const { name, startingWord, mascot } = req.body;
 
       // 1. Validate Player 1 name
       if (!name || typeof name !== 'string' || name.trim().length === 0) {
@@ -82,6 +82,7 @@ export const roomController = {
         player1: {
           playerId: player1Id,
           name: trimmedName,
+          mascot: mascot || '😎',
           connectionStatus: 'connected',
           socketId: null,
           ready: false
@@ -176,7 +177,7 @@ export const roomController = {
   async joinRoom(req, res) {
     try {
       const { roomId } = req.params;
-      const { name, targetWord, playerId: existingPlayerId } = req.body;
+      const { name, targetWord, playerId: existingPlayerId, mascot } = req.body;
 
       if (!roomId || typeof roomId !== 'string') {
         return res.status(400).json({
@@ -232,6 +233,7 @@ export const roomController = {
       if (room.player2 && room.player2.playerId) {
         if (existingPlayerId && room.player2.playerId === existingPlayerId) {
           room.player2.connectionStatus = 'connected';
+          if (mascot) room.player2.mascot = mascot;
           room.lastActivityAt = new Date();
           await room.save();
 
@@ -263,6 +265,7 @@ export const roomController = {
       room.player2 = {
         playerId: player2Id,
         name: trimmedName,
+        mascot: mascot || '👩‍🦰',
         connectionStatus: 'connected',
         socketId: null,
         ready: false

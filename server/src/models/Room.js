@@ -11,6 +11,10 @@ const PlayerSchema = new mongoose.Schema({
     trim: true,
     maxlength: 30
   },
+  mascot: {
+    type: String,
+    default: '😎'
+  },
   connectionStatus: {
     type: String,
     enum: ['connected', 'disconnected'],

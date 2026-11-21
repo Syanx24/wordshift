@@ -21,20 +21,29 @@ export default function GamePlayScreen({
   const [showTerminateModal, setShowTerminateModal] = useState(false);
   const [typedLetters, setTypedLetters] = useState(['', '', '', '']);
   const [localError, setLocalError] = useState(null);
-  const [activeReaction, setActiveReaction] = useState(null);
+  const [leftReaction, setLeftReaction] = useState(null);
+  const [rightReaction, setRightReaction] = useState(null);
 
   const inputRefs = [useRef(null), useRef(null), useRef(null), useRef(null)];
-  const reactionTimerRef = useRef(null);
+  const leftReactionTimerRef = useRef(null);
+  const rightReactionTimerRef = useRef(null);
 
-  // Helper to show reaction popup with auto-dismiss
-  const showReactionPopup = (emoji, sender) => {
-    if (reactionTimerRef.current) {
-      clearTimeout(reactionTimerRef.current);
+  // Helper to show reaction popup with auto-dismiss vanishing smoothly on the respective side
+  const showReactionPopup = (emoji, sender, isFromMe) => {
+    const reactionObj = { emoji, senderName: sender, id: Date.now() + Math.random() };
+    if (isFromMe) {
+      if (leftReactionTimerRef.current) clearTimeout(leftReactionTimerRef.current);
+      setLeftReaction(reactionObj);
+      leftReactionTimerRef.current = setTimeout(() => {
+        setLeftReaction(null);
+      }, 2450);
+    } else {
+      if (rightReactionTimerRef.current) clearTimeout(rightReactionTimerRef.current);
+      setRightReaction(reactionObj);
+      rightReactionTimerRef.current = setTimeout(() => {
+        setRightReaction(null);
+      }, 2450);
     }
-    setActiveReaction({ emoji, senderName: sender });
-    reactionTimerRef.current = setTimeout(() => {
-      setActiveReaction(null);
-    }, 2500);
   };
 
   // Player identity checks
@@ -45,8 +54,12 @@ export default function GamePlayScreen({
   const opponentRole = isPlayer1 ? 'player2' : 'player1';
   const opponentName = isPlayer1 ? (room.player2?.name || 'Player 2') : room.player1.name;
   const isMyTurn = room.currentTurn === myRole;
-  const myMascot = isPlayer1 ? '🍔' : '🍕';
-  const opponentMascot = isPlayer1 ? '🍕' : '🍔';
+  const myMascot = isPlayer1
+    ? (room.player1?.mascot || session?.mascot || '😎')
+    : (room.player2?.mascot || session?.mascot || '👩‍🦰');
+  const opponentMascot = isPlayer1
+    ? (room.player2?.mascot || '👩‍🦰')
+    : (room.player1?.mascot || '😎');
 
   // Connection presence
   const p1Connected = room.player1?.connectionStatus !== 'disconnected';
@@ -77,8 +90,8 @@ export default function GamePlayScreen({
     if (incomingReaction?.emoji) {
       const isFromMe = (incomingReaction.senderPlayerId && session?.playerId && incomingReaction.senderPlayerId === session.playerId) ||
                        (incomingReaction.senderRole && myRole && incomingReaction.senderRole === myRole);
-      const senderDisplayName = isFromMe ? 'You' : (incomingReaction.senderName || opponentName || 'Player');
-      showReactionPopup(incomingReaction.emoji, senderDisplayName);
+      const senderDisplayName = isFromMe ? 'YOU' : (incomingReaction.senderName || opponentName || 'OPPONENT');
+      showReactionPopup(incomingReaction.emoji, senderDisplayName, isFromMe);
     }
   }, [incomingReaction, session?.playerId, myRole, opponentName]);
 
@@ -91,16 +104,19 @@ export default function GamePlayScreen({
       if (data?.emoji) {
         const isFromMe = (data.senderPlayerId && session?.playerId && data.senderPlayerId === session.playerId) ||
                          (data.senderRole && myRole && data.senderRole === myRole);
-        const senderDisplayName = isFromMe ? 'You' : (data.senderName || opponentName || 'Player');
-        showReactionPopup(data.emoji, senderDisplayName);
+        const senderDisplayName = isFromMe ? 'YOU' : (data.senderName || opponentName || 'OPPONENT');
+        showReactionPopup(data.emoji, senderDisplayName, isFromMe);
       }
     }
 
     socket.on('player-reaction', handleDirectReaction);
     return () => {
       socket.off('player-reaction', handleDirectReaction);
-      if (reactionTimerRef.current) {
-        clearTimeout(reactionTimerRef.current);
+      if (leftReactionTimerRef.current) {
+        clearTimeout(leftReactionTimerRef.current);
+      }
+      if (rightReactionTimerRef.current) {
+        clearTimeout(rightReactionTimerRef.current);
       }
     };
   }, [session?.playerId, myRole, opponentName]);
@@ -162,7 +178,7 @@ export default function GamePlayScreen({
 
   // Broadcast reaction to both players
   const triggerReaction = (emoji) => {
-    showReactionPopup(emoji, 'You');
+    showReactionPopup(emoji, 'YOU', true);
 
     const activeRoomId = (room?.roomId || session?.roomId || '').toUpperCase();
     const activeName = myName || session?.playerName || session?.name || (isPlayer1 ? 'Player 1' : 'Player 2');
@@ -272,6 +288,21 @@ export default function GamePlayScreen({
       <div className="relative flex items-center justify-between gap-2 sm:gap-3 pt-3.5">
         {/* Left Card: YOU (Current Player) */}
         <div className="relative flex-1">
+          {/* Left Reaction Pop Up & Pop Down */}
+          {leftReaction && (
+            <div
+              key={leftReaction.id}
+              className="absolute -top-18 left-2 sm:left-4 z-40 pointer-events-none animate-pop-up-down flex flex-col items-center"
+            >
+              <div className="text-5xl sm:text-6xl drop-shadow-[3px_3px_0px_#111111]">
+                {leftReaction.emoji}
+              </div>
+              <div className="bg-[#111111] text-white text-[10px] font-black px-2.5 py-0.5 rounded-full border border-white shadow-[2px_2px_0px_#111111] uppercase tracking-wide -mt-1 whitespace-nowrap">
+                {leftReaction.senderName}
+              </div>
+            </div>
+          )}
+
           {isMyTurn && (
             <div className="absolute -top-3 left-2 sm:left-3 z-20 pointer-events-none">
               <span className="inline-flex items-center gap-1 bg-[#f45bd7] text-[#111111] text-[10px] font-black px-2.5 py-0.5 rounded-full border-2 border-[#111111] shadow-[2px_2px_0px_#111111] uppercase tracking-wider animate-bounce">
@@ -306,6 +337,21 @@ export default function GamePlayScreen({
 
         {/* Right Card: Opponent */}
         <div className="relative flex-1">
+          {/* Right Reaction Pop Up & Pop Down */}
+          {rightReaction && (
+            <div
+              key={rightReaction.id}
+              className="absolute -top-18 right-2 sm:right-4 z-40 pointer-events-none animate-pop-up-down flex flex-col items-center"
+            >
+              <div className="text-5xl sm:text-6xl drop-shadow-[3px_3px_0px_#111111]">
+                {rightReaction.emoji}
+              </div>
+              <div className="bg-[#111111] text-white text-[10px] font-black px-2.5 py-0.5 rounded-full border border-white shadow-[2px_2px_0px_#111111] uppercase tracking-wide -mt-1 whitespace-nowrap">
+                {rightReaction.senderName}
+              </div>
+            </div>
+          )}
+
           {!isMyTurn && (
             <div className="absolute -top-3 right-2 sm:right-3 z-20 pointer-events-none">
               <span className="inline-flex items-center gap-1 bg-[#ffe17b] text-[#231b00] text-[10px] font-black px-2.5 py-0.5 rounded-full border-2 border-[#111111] shadow-[2px_2px_0px_#111111] uppercase tracking-wider animate-pulse">
@@ -492,18 +538,7 @@ export default function GamePlayScreen({
         </div>
       </div>
 
-      {/* Floating Reaction Pop Display for BOTH players */}
-      {activeReaction && (
-        <div className="fixed top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center pointer-events-none z-50 animate-bounce">
-          <div className="text-7xl sm:text-8xl drop-shadow-[4px_4px_0px_#111111]">
-            {activeReaction.emoji}
-          </div>
-          <div className="bg-[#111111] text-white text-xs font-black px-3.5 py-1 rounded-full border-2 border-white shadow-[3px_3px_0px_#111111] uppercase mt-2 tracking-wide flex items-center gap-1.5 whitespace-nowrap">
-            <span>{activeReaction.senderName}</span>
-            <span>reacted {activeReaction.emoji}!</span>
-          </div>
-        </div>
-      )}
+
 
       {/* Small Termination Confirmation Modal */}
       {showTerminateModal && (
@@ -548,6 +583,8 @@ export default function GamePlayScreen({
           winnerName={room.winnerName}
           player1Name={room.player1?.name || 'Partner 1'}
           player2Name={room.player2?.name || 'Partner 2'}
+          player1Mascot={room.player1?.mascot || '😎'}
+          player2Mascot={room.player2?.mascot || '👩‍🦰'}
           totalMoves={room.totalMoves || room.wordHistory?.length}
           duration={room.duration || 60}
           wordHistory={room.wordHistory || []}

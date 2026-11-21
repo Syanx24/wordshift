@@ -4,7 +4,7 @@ import { roomApi } from '../services/api';
 import { useGame } from '../context/GameContext';
 
 const TARGET_PRESETS = ['WARM', 'TAIL', 'PLAY', 'DOCK', 'WIRE', 'STAR', 'MOON', 'COLD', 'FIRE', 'GOLD'];
-const MASCOTS = ['🍕', '🍔', '🍟', '🌭', '🍩'];
+const MASCOTS = ['👩‍🦰', '🧑‍🦱', '🐻', '🐵', '😎'];
 
 export default function JoinRoom() {
   const { roomId } = useParams();
@@ -16,7 +16,7 @@ export default function JoinRoom() {
   const [loading, setLoading] = useState(!!roomId);
   const [error, setError] = useState(null);
   const [playerName, setPlayerName] = useState('Player 2');
-  const [selectedMascot, setSelectedMascot] = useState('🍕');
+  const [selectedMascot, setSelectedMascot] = useState('👩‍🦰');
   const [letters, setLetters] = useState(['W', 'A', 'R', 'M']);
   const [submitting, setSubmitting] = useState(false);
 
@@ -130,11 +130,12 @@ export default function JoinRoom() {
       const activeCode = roomId ? roomId.toUpperCase() : inputCode.trim().toUpperCase();
       const response = await roomApi.joinRoom(activeCode, {
         name: playerName.trim(),
-        targetWord: cleanTarget
+        targetWord: cleanTarget,
+        mascot: selectedMascot
       });
 
       if (response.success && response.room) {
-        saveSession(activeCode, response.playerId, 'player2', playerName.trim());
+        saveSession(activeCode, response.playerId, 'player2', playerName.trim(), selectedMascot);
         navigate(`/room/${activeCode}`);
       } else {
         setError(response.error || 'Failed to join room');
@@ -266,7 +267,7 @@ export default function JoinRoom() {
                 <span className="text-[11px] font-bold uppercase tracking-wider text-[#54414e]">
                   Select Mascot
                 </span>
-                <div className="flex gap-2 sm:gap-3 items-center overflow-x-auto pb-1 pt-1 no-scrollbar">
+                <div className="flex items-center justify-between w-full pb-1 pt-1">
                   {MASCOTS.map((mascot) => {
                     const isSelected = selectedMascot === mascot;
                     return (
@@ -274,7 +275,7 @@ export default function JoinRoom() {
                         key={mascot}
                         type="button"
                         onClick={() => setSelectedMascot(mascot)}
-                        className={`flex-shrink-0 flex flex-col items-center justify-center p-2 rounded-xl transition-all ${
+                        className={`flex-1 flex flex-col items-center justify-center p-2 rounded-xl transition-all ${
                           isSelected
                             ? 'scale-125 -translate-y-1 opacity-100'
                             : 'opacity-40 hover:opacity-80 scale-100'

@@ -7,6 +7,7 @@ import GamePlayScreen from '../components/GamePlayScreen';
 import CountdownOverlay from '../components/CountdownOverlay';
 
 const TARGET_PRESETS = ['WARM', 'TAIL', 'PLAY', 'DOCK', 'WIRE', 'STAR', 'MOON', 'DARK', 'FIRE', 'GOLD'];
+const MASCOTS = ['👩‍🦰', '🧑‍🦱', '🐻', '🐵', '😎'];
 
 export default function WaitingRoom() {
   const { roomId } = useParams();
@@ -21,6 +22,7 @@ export default function WaitingRoom() {
   
   // Join form state for invited Player 2
   const [guestName, setGuestName] = useState('Player 2');
+  const [guestMascot, setGuestMascot] = useState('👩‍🦰');
   const [guestLetters, setGuestLetters] = useState(['W', 'A', 'R', 'M']);
   const [joinLoading, setJoinLoading] = useState(false);
   const [joinError, setJoinError] = useState(null);
@@ -312,11 +314,12 @@ export default function WaitingRoom() {
     try {
       const response = await roomApi.joinRoom(roomId, {
         name: guestName.trim(),
-        targetWord: cleanTarget
+        targetWord: cleanTarget,
+        mascot: guestMascot
       });
 
       if (response.success && response.room) {
-        saveSession(roomId.toUpperCase(), response.playerId, 'player2', guestName.trim());
+        saveSession(roomId.toUpperCase(), response.playerId, 'player2', guestName.trim(), guestMascot);
         setRoom(response.room);
         if (response.room.status === 'ready_to_start') {
           setIsCountingDown(true);
@@ -647,7 +650,7 @@ export default function WaitingRoom() {
             <div className="bg-white rounded-xl p-3 border-2 border-[#111111] shadow-[3px_3px_0px_#111111] flex flex-col justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-[#ffd7f0] border border-[#111111] flex items-center justify-center text-lg">
-                  🍔
+                  {room?.player1?.mascot || '😎'}
                 </div>
                 <div className="min-w-0">
                   <p className="font-black text-xs uppercase truncate text-[#111111]">
@@ -676,7 +679,7 @@ export default function WaitingRoom() {
             }`}>
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-[#e4e3db] border border-[#111111] flex items-center justify-center text-lg">
-                  {room?.player2?.name ? '🍕' : '💬'}
+                  {room?.player2?.name ? (room?.player2?.mascot || '👩‍🦰') : '💬'}
                 </div>
                 <div className="min-w-0">
                   <p className="font-black text-xs uppercase truncate text-[#111111]">
@@ -723,6 +726,35 @@ export default function WaitingRoom() {
               className="bg-[#f5f4ec] font-bold text-sm px-3 py-2 rounded-xl border-2 border-[#111111] outline-none"
             />
 
+            {/* Mascot Selector */}
+            <div className="flex flex-col gap-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#54414e]">
+                Select Mascot
+              </span>
+              <div className="flex items-center justify-between w-full pb-1 pt-1">
+                {MASCOTS.map((mascot) => {
+                  const isSelected = guestMascot === mascot;
+                  return (
+                    <button
+                      key={mascot}
+                      type="button"
+                      onClick={() => setGuestMascot(mascot)}
+                      className={`flex-1 flex flex-col items-center justify-center p-1.5 rounded-xl transition-all ${
+                        isSelected
+                          ? 'scale-125 -translate-y-1 opacity-100'
+                          : 'opacity-40 hover:opacity-80 scale-100'
+                      }`}
+                    >
+                      <span className="text-2xl select-none">{mascot}</span>
+                      {isSelected && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#111111] mt-0.5" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             <div>
               <label className="text-[11px] font-bold text-[#54414e] block mb-1">
                 4-Letter Target Goal Word
@@ -756,7 +788,7 @@ export default function WaitingRoom() {
         {/* Mascot Waiting Moment Card */}
         <div className="bg-white rounded-2xl p-4 border-[3px] border-[#111111] shadow-[4px_4px_0px_#111111] flex items-center gap-4">
           <div className="w-16 h-16 rounded-xl bg-[#ffd7f0] border-2 border-[#111111] shadow-[2px_2px_0px_#111111] flex items-center justify-center text-3xl shrink-0">
-            🍔
+            {room?.player1?.mascot || '😎'}
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-black text-sm uppercase text-[#111111]">

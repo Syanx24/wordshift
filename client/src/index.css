@@ -102,3 +102,37 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Realtime Reactions Pop Up & Vanish Fade Animation */
+@keyframes popUpVanish {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.35);
+    animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  22% {
+    opacity: 1;
+    transform: translateY(-4px) scale(1.08);
+    animation-timing-function: ease-out;
+  }
+  32% {
+    opacity: 1;
+    transform: translateY(0px) scale(1);
+  }
+  38% {
+    opacity: 1;
+    transform: translateY(0px) scale(1);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-24px) scale(0.88);
+  }
+}
+
+.animate-pop-up-down,
+.animate-pop-up-vanish {
+  animation: popUpVanish 2.4s forwards;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}

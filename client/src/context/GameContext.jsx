@@ -12,8 +12,8 @@ export function GameProvider({ children }) {
     }
   });
 
-  const saveSession = (roomId, playerId, role, playerName) => {
-    const data = { roomId, playerId, role, playerName, timestamp: Date.now() };
+  const saveSession = (roomId, playerId, role, playerName, mascot) => {
+    const data = { roomId, playerId, role, playerName, mascot, timestamp: Date.now() };
     setSession(data);
     try {
       sessionStorage.setItem('wordshift-session', JSON.stringify(data));

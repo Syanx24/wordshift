@@ -4,14 +4,14 @@ import { roomApi } from '../services/api';
 import { useGame } from '../context/GameContext';
 
 const START_PRESETS = ['BARK', 'COLD', 'HEAD', 'WORK', 'SHIP', 'FIRE', 'MOON', 'GAME', 'PLAY', 'DARK'];
-const MASCOTS = ['🍔', '🍟', '🌭', '🍕', '🍩'];
+const MASCOTS = ['😎', '🐵', '🐻', '🧑‍🦱', '👩‍🦰'];
 
 export default function CreateRoom() {
   const navigate = useNavigate();
   const { saveSession } = useGame();
 
   const [name, setName] = useState('Player 1');
-  const [selectedMascot, setSelectedMascot] = useState('🍔');
+  const [selectedMascot, setSelectedMascot] = useState('😎');
   const [letters, setLetters] = useState(['B', 'A', 'R', 'K']);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -74,10 +74,11 @@ export default function CreateRoom() {
       const response = await roomApi.createRoom({
         name: name.trim(),
         startingWord: startingWord,
+        mascot: selectedMascot
       });
 
       if (response.success && response.roomId) {
-        saveSession(response.roomId, response.playerId, 'player1', name.trim());
+        saveSession(response.roomId, response.playerId, 'player1', name.trim(), selectedMascot);
         navigate(`/room/${response.roomId}`);
       } else {
         setError(response.error || 'Failed to create room.');
@@ -165,34 +166,34 @@ export default function CreateRoom() {
               className="w-full bg-[#f5f4ec] text-[#111111] font-bold text-base px-3.5 py-2.5 rounded-xl border-2 border-[#111111] shadow-[2px_2px_0px_#111111] focus:bg-white focus:outline-none transition-all placeholder:text-[#87717e]/50"
             />
 
-            {/* Avatar Selector Carousel */}
-            <div className="flex flex-col gap-1.5 mt-1">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#54414e]">
-                Select Mascot
-              </span>
-              <div className="flex gap-2 sm:gap-3 items-center overflow-x-auto pb-1 pt-1 no-scrollbar">
-                {MASCOTS.map((mascot) => {
-                  const isSelected = selectedMascot === mascot;
-                  return (
-                    <button
-                      key={mascot}
-                      type="button"
-                      onClick={() => setSelectedMascot(mascot)}
-                      className={`flex-shrink-0 flex flex-col items-center justify-center p-2 rounded-xl transition-all ${
-                        isSelected
-                          ? 'scale-125 -translate-y-1 opacity-100'
-                          : 'opacity-40 hover:opacity-80 scale-100'
-                      }`}
-                    >
-                      <span className="text-3xl select-none">{mascot}</span>
-                      {isSelected && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#111111] mt-1" />
-                      )}
-                    </button>
-                  );
-                })}
+              {/* Avatar Selector Carousel */}
+              <div className="flex flex-col gap-1.5 mt-1">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#54414e]">
+                  Select Mascot
+                </span>
+                <div className="flex items-center justify-between w-full pb-1 pt-1">
+                  {MASCOTS.map((mascot) => {
+                    const isSelected = selectedMascot === mascot;
+                    return (
+                      <button
+                        key={mascot}
+                        type="button"
+                        onClick={() => setSelectedMascot(mascot)}
+                        className={`flex-1 flex flex-col items-center justify-center p-2 rounded-xl transition-all ${
+                          isSelected
+                            ? 'scale-125 -translate-y-1 opacity-100'
+                            : 'opacity-40 hover:opacity-80 scale-100'
+                        }`}
+                      >
+                        <span className="text-3xl select-none">{mascot}</span>
+                        {isSelected && (
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#111111] mt-1" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
           </div>
 
           {/* 4-Letter Start Word Input */}

@@ -6,6 +6,8 @@ export default function VictoryModal({
   winnerName = 'Both Players',
   player1Name = 'Player 1',
   player2Name = 'Player 2',
+  player1Mascot = '😎',
+  player2Mascot = '👩‍🦰',
   totalMoves = 0,
   duration = 0,
   wordHistory = [],
@@ -128,7 +130,7 @@ export default function VictoryModal({
             <div className="flex items-center justify-center gap-3">
               <div className="flex flex-col items-center gap-1">
                 <div className="w-14 h-14 rounded-xl bg-[#ffe17b] border-2 border-[#111111] shadow-[3px_3px_0px_#111111] flex items-center justify-center text-3xl">
-                  🍔
+                  {player1Mascot}
                 </div>
                 <span className="text-[11px] font-black uppercase text-[#111111] max-w-[80px] truncate">
                   {player1Name}
@@ -150,7 +152,7 @@ export default function VictoryModal({
 
               <div className="flex flex-col items-center gap-1">
                 <div className="w-14 h-14 rounded-xl bg-[#a0f973] border-2 border-[#111111] shadow-[3px_3px_0px_#111111] flex items-center justify-center text-3xl">
-                  🍕
+                  {player2Mascot}
                 </div>
                 <span className="text-[11px] font-black uppercase text-[#111111] max-w-[80px] truncate">
                   {player2Name}
