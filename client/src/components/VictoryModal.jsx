@@ -23,6 +23,8 @@ export default function VictoryModal({
 }) {
   const [swapRoles, setSwapRoles] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showStepList, setShowStepList] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
 
   const minutes = Math.floor(duration / 60);
   const seconds = duration % 60;
@@ -60,9 +62,37 @@ export default function VictoryModal({
     }
   };
 
+  if (isMinimized) {
+    return (
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[94%] max-w-lg bg-[#ffe17b] border-[3px] border-[#111111] rounded-2xl p-3 shadow-[6px_6px_0px_#111111] flex items-center justify-between gap-3 select-none">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-9 h-9 rounded-xl bg-white border-2 border-[#111111] shadow-[2px_2px_0px_#111111] flex items-center justify-center text-lg shrink-0">
+            {isTargetReached ? '🏆' : '🏁'}
+          </div>
+          <div className="flex flex-col min-w-0">
+            <span className="font-black text-xs uppercase tracking-tight text-[#111111] truncate">
+              {isTargetReached ? 'Target Reached! 🎉' : 'Round Concluded 🏁'}
+            </span>
+            <span className="text-[10px] font-bold text-[#54414e] truncate">
+              {totalMoves} shifts • {timeFormatted} • Target: <strong className="text-[#111111]">{targetWord}</strong>
+            </span>
+          </div>
+        </div>
+        <button
+          onClick={() => setIsMinimized(false)}
+          type="button"
+          className="shrink-0 bg-[#a0f973] hover:bg-[#8cee5d] text-[#072100] px-3.5 py-2 rounded-xl border-2 border-[#111111] font-black text-xs uppercase shadow-[2px_2px_0px_#111111] active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center gap-1.5"
+        >
+          <span>View Results</span>
+          <span className="material-symbols-outlined text-sm font-bold">open_in_full</span>
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 z-50 bg-[#111111]/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto select-none">
-      <div className="w-full max-w-md sm:max-w-lg bg-[#fbf9f1] border-[4px] border-[#111111] rounded-3xl p-4 sm:p-6 shadow-[8px_8px_0px_#111111] my-6 relative overflow-hidden text-[#111111] flex flex-col gap-4">
+      <div className="w-full max-w-md sm:max-w-lg bg-[#fbf9f1] border-[4px] border-[#111111] rounded-3xl p-4 sm:p-6 shadow-[8px_8px_0px_#111111] my-auto relative overflow-hidden text-[#111111] flex flex-col gap-4 max-h-[92vh] overflow-y-auto">
         
         {/* Playful Floating Stars & Decors */}
         <div className="relative w-full flex flex-col items-center">
@@ -71,7 +101,16 @@ export default function VictoryModal({
               <path d="M12 0L14.8 8.8L24 12L14.8 15.2L12 24L9.2 15.2L0 12L9.2 8.8L12 0Z" fill="currentColor" />
             </svg>
           </div>
-          <div className="absolute top-1 right-2 rotate-12">
+          <div className="absolute top-1 right-2 flex items-center gap-1.5">
+            <button
+              onClick={() => setIsMinimized(true)}
+              type="button"
+              title="Review full game board"
+              className="text-[10px] font-black px-2 py-0.5 rounded-full bg-white hover:bg-[#ffe17b] text-[#111111] border border-[#111111] shadow-[2px_2px_0px_#111111] active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center gap-1"
+            >
+              <span className="material-symbols-outlined text-[13px]">visibility</span>
+              <span>Review Board</span>
+            </button>
             <div className={`text-[10px] font-black px-2 py-0.5 rounded-full border border-[#111111] shadow-[2px_2px_0px_#111111] ${
               isTargetReached ? 'bg-[#a0f973] text-[#072100]' : 'bg-[#ffe17b] text-[#231b00]'
             }`}>
@@ -206,6 +245,147 @@ export default function VictoryModal({
               {timeFormatted} <span className="text-xs text-[#87717e] font-bold">total</span>
             </span>
           </div>
+        </div>
+
+        {/* Word Ladder History for Tracking */}
+        <div className="w-full bg-white rounded-2xl p-3.5 sm:p-4 border-[3px] border-[#111111] shadow-[4px_4px_0px_#111111] flex flex-col gap-2.5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[#ab0e97] text-lg font-bold">alt_route</span>
+              <span className="text-xs sm:text-sm font-black uppercase tracking-wide text-[#111111]">
+                PATH HISTORY ({wordHistory.length} STEPS)
+              </span>
+            </div>
+            {wordHistory.length > 0 && (
+              <button
+                onClick={() => setShowStepList(!showStepList)}
+                type="button"
+                className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-[#eae8e0] hover:bg-[#ffe17b] border border-[#111111] shadow-[1px_1px_0px_#111111] active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center gap-1 text-[#111111]"
+              >
+                <span className="material-symbols-outlined text-[13px]">
+                  {showStepList ? 'view_carousel' : 'format_list_bulleted'}
+                </span>
+                <span>{showStepList ? 'Chain View' : 'Step List'}</span>
+              </button>
+            )}
+          </div>
+
+          {!showStepList ? (
+            /* Horizontal Transformation Chain */
+            <div className="flex items-center gap-2 overflow-x-auto pb-3 pt-1.5 px-1 no-scrollbar select-none">
+              {/* Step 0: Starting word */}
+              <div className="flex items-center shrink-0">
+                <div className="flex flex-col bg-[#eae8e0] px-2.5 py-1.5 rounded-xl border-2 border-[#111111] shadow-[2px_2px_0px_#111111] items-center">
+                  <div className="font-black text-xs sm:text-sm tracking-widest text-[#111111]">
+                    {startingWord}
+                  </div>
+                  <span className="text-[9px] text-[#54414e] uppercase font-black mt-0.5">
+                    Start Word
+                  </span>
+                </div>
+                <span className="material-symbols-outlined text-[#87717e] mx-1 text-sm font-black">
+                  arrow_forward
+                </span>
+              </div>
+
+              {/* Moves in history */}
+              {wordHistory.map((step, idx) => {
+                const isLatest = idx === wordHistory.length - 1;
+                const isTarget = step.word.toUpperCase() === targetWord.toUpperCase();
+                const changedIdx = step.changedIndex;
+                const playerMascot = step.player === 'player1' ? player1Mascot : player2Mascot;
+
+                let cardBg = 'bg-[#f5f4ec]';
+                if (isTarget) cardBg = 'bg-[#ffe17b]';
+                else if (isLatest) cardBg = 'bg-[#ffd7f0]';
+
+                return (
+                  <div key={idx} className="flex items-center shrink-0">
+                    <div className={`flex flex-col ${cardBg} px-2.5 py-1.5 rounded-xl border-2 border-[#111111] shadow-[2px_2px_0px_#111111] items-center`}>
+                      <div className="font-black text-xs sm:text-sm tracking-widest text-[#111111] flex">
+                        {step.word.split('').map((c, i) => (
+                          <span
+                            key={i}
+                            className={i === changedIdx ? 'text-[#ab0e97] underline decoration-2' : ''}
+                          >
+                            {c}
+                          </span>
+                        ))}
+                      </div>
+                      <span className="text-[9px] uppercase font-black mt-0.5 text-[#54414e] flex items-center gap-1">
+                        <span>{playerMascot}</span>
+                        <span>{isTarget ? 'TARGET 🎯' : (step.playerName || (step.player === 'player1' ? 'P1' : 'P2'))}</span>
+                      </span>
+                    </div>
+                    {idx < wordHistory.length - 1 && (
+                      <span className="material-symbols-outlined text-[#87717e] mx-1 text-sm font-black">
+                        arrow_forward
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+              <div className="w-2.5 shrink-0 pointer-events-none" aria-hidden="true" />
+            </div>
+          ) : (
+            /* Detailed Step-by-Step Breakdown */
+            <div className="max-h-48 overflow-y-auto flex flex-col gap-1.5 pr-1 text-xs select-none">
+              <div className="flex items-center justify-between p-2 rounded-xl bg-[#eae8e0] border border-[#111111]">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-[#111111] text-white">
+                    START
+                  </span>
+                  <span className="font-black tracking-wider text-sm">{startingWord}</span>
+                </div>
+                <span className="text-[10px] font-bold text-[#54414e]">Initial Word</span>
+              </div>
+
+              {wordHistory.map((step, idx) => {
+                const isTarget = step.word.toUpperCase() === targetWord.toUpperCase();
+                const playerMascot = step.player === 'player1' ? player1Mascot : player2Mascot;
+                const prevWord = step.previousWord || (idx === 0 ? startingWord : wordHistory[idx - 1]?.word);
+                const changedLetter = step.changedIndex >= 0 ? step.word[step.changedIndex] : '';
+                const prevLetter = (prevWord && step.changedIndex >= 0) ? prevWord[step.changedIndex] : '';
+
+                return (
+                  <div
+                    key={idx}
+                    className={`flex items-center justify-between p-2 rounded-xl border border-[#111111] ${
+                      isTarget ? 'bg-[#ffe17b]' : 'bg-[#f5f4ec]'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-white border border-[#111111]">
+                        #{idx + 1}
+                      </span>
+                      <span className="font-black tracking-wider text-sm flex">
+                        {step.word.split('').map((c, i) => (
+                          <span
+                            key={i}
+                            className={i === step.changedIndex ? 'text-[#ab0e97] underline decoration-2 font-black' : ''}
+                          >
+                            {c}
+                          </span>
+                        ))}
+                      </span>
+                      {changedLetter && prevLetter && (
+                        <span className="text-[10px] font-bold text-[#54414e]">
+                          ({prevLetter} ➔ <strong className="text-[#ab0e97]">{changedLetter}</strong>)
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-1 text-[11px] font-bold text-[#111111]">
+                      <span>{playerMascot}</span>
+                      <span className="truncate max-w-[80px]">
+                        {isTarget ? 'TARGET 🎯' : (step.playerName || (step.player === 'player1' ? 'P1' : 'P2'))}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Playful Match Tag */}

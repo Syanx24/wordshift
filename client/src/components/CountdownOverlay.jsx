@@ -1,7 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import { playSound } from '../utils/sound';
 
 export default function CountdownOverlay({ count = 3, onFinished, onFinish }) {
   const [secondsLeft, setSecondsLeft] = useState(count);
+
+  useEffect(() => {
+    const audio = playSound('timer.mp3');
+    return () => {
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (secondsLeft <= 0) {

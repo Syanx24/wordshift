@@ -3,6 +3,7 @@ import { getSocket, connectSocket } from '../services/socket';
 import WordHistoryLadder from './WordHistoryLadder';
 import VictoryModal from './VictoryModal';
 import HowToPlayModal from './HowToPlayModal';
+import { playSound } from '../utils/sound';
 
 export default function GamePlayScreen({
   room,
@@ -121,6 +122,16 @@ export default function GamePlayScreen({
     };
   }, [session?.playerId, myRole, opponentName]);
 
+  // SFX: Play history_reg.mp3 whenever a word is successfully registered in pathway history
+  const prevHistoryLengthRef = useRef(room.wordHistory?.length || 0);
+  useEffect(() => {
+    const currentLength = room.wordHistory?.length || 0;
+    if (currentLength > prevHistoryLengthRef.current) {
+      playSound('history_reg.mp3');
+    }
+    prevHistoryLengthRef.current = currentLength;
+  }, [room.wordHistory?.length]);
+
   // Diff calculation
   let diffCount = 0;
   let changedIndex = -1;
@@ -160,16 +171,19 @@ export default function GamePlayScreen({
     const fullWord = typedLetters.join('').toUpperCase();
     if (fullWord.length !== 4) {
       setLocalError('Word must be exactly 4 letters.');
+      playSound('invalid_word.mp3');
       return;
     }
 
     if (diffCount === 0) {
       setLocalError('You must change exactly one letter.');
+      playSound('invalid_word.mp3');
       return;
     }
 
     if (diffCount > 1) {
       setLocalError(`You changed ${diffCount} letters. Only 1 change allowed!`);
+      playSound('invalid_word.mp3');
       return;
     }
 
@@ -214,7 +228,7 @@ export default function GamePlayScreen({
     : 0;
 
   return (
-    <div className="w-full max-w-md sm:max-w-xl mx-auto px-3 sm:px-4 py-4 flex flex-col gap-3 sm:gap-4 select-none pb-20">
+    <div className="w-full max-w-md sm:max-w-xl mx-auto px-3 sm:px-4 py-2 sm:py-4 flex flex-col gap-2.5 sm:gap-4 select-none pb-3 sm:pb-20">
       
       {/* MATCH CONTROL SUB-HEADER: Status & Small Game Termination Button */}
       <div className="flex items-center justify-between px-1">
@@ -255,7 +269,7 @@ export default function GamePlayScreen({
           </span>
           <div className="flex gap-0.5 sm:gap-1">
             {startingWord.split('').map((c, i) => (
-              <span key={i} className="w-6 h-7 bg-[#f0eee6] text-[#111111] font-black text-xs sm:text-sm flex items-center justify-center rounded border border-[#111111]">
+              <span key={i} className="w-6 h-7 bg-white text-[#111111] font-black text-xs sm:text-sm flex items-center justify-center rounded border border-[#111111]">
                 {c}
               </span>
             ))}
@@ -276,7 +290,7 @@ export default function GamePlayScreen({
           </span>
           <div className="flex gap-0.5 sm:gap-1">
             {targetWord.split('').map((c, i) => (
-              <span key={i} className="w-6 h-7 bg-[#a0f973] text-[#072100] font-black text-xs sm:text-sm flex items-center justify-center rounded border border-[#111111]">
+              <span key={i} className="w-6 h-7 bg-white text-[#111111] font-black text-xs sm:text-sm flex items-center justify-center rounded border border-[#111111]">
                 {c}
               </span>
             ))}
@@ -379,81 +393,80 @@ export default function GamePlayScreen({
       </div>
 
       {/* 3. CURRENT LIVE BOARD WORD CARD */}
-      <div className="flex flex-col items-center bg-white p-4 sm:p-5 rounded-2xl border-[4px] border-[#111111] shadow-[6px_6px_0px_#111111] relative mt-1">
+      <div className="flex flex-col items-center bg-[#dbdbdb] py-2.5 px-3 sm:p-5 rounded-xl sm:rounded-2xl border-[3px] sm:border-[4px] border-[#111111] shadow-[4px_4px_0px_#111111] sm:shadow-[6px_6px_0px_#111111] relative mt-2.5 sm:mt-1">
         {/* Floating Eye Sticker Accent */}
-        <div className="absolute -top-4 left-4 bg-[#ffe17b] px-2 py-0.5 rounded-full border-2 border-[#111111] shadow-[2px_2px_0px_#111111] flex items-center gap-1.5 -rotate-3">
-          <span className="w-3 h-3 bg-white rounded-full border border-[#111111] flex items-center justify-center">
-            <span className="w-1.5 h-1.5 bg-[#111111] rounded-full" />
+        <div className="absolute -top-3 sm:-top-4 left-3 sm:left-4 bg-[#ffe17b] px-2 py-0.5 rounded-full border-2 border-[#111111] shadow-[2px_2px_0px_#111111] flex items-center gap-1 sm:gap-1.5 -rotate-3">
+          <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-white rounded-full border border-[#111111] flex items-center justify-center">
+            <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-[#111111] rounded-full" />
           </span>
-          <span className="w-3 h-3 bg-white rounded-full border border-[#111111] flex items-center justify-center">
-            <span className="w-1.5 h-1.5 bg-[#111111] rounded-full" />
+          <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-white rounded-full border border-[#111111] flex items-center justify-center">
+            <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-[#111111] rounded-full" />
           </span>
-          <span className="text-[10px] font-black text-[#111111] uppercase tracking-wider">
+          <span className="text-[9px] sm:text-[10px] font-black text-[#111111] uppercase tracking-wider">
             CURRENT BOARD
           </span>
         </div>
 
         {/* Rule Reminder */}
-        <div className="w-full text-center mb-3 mt-1">
-          <span className="text-xs font-bold text-[#54414e]">
+        <div className="w-full text-center mb-1.5 sm:mb-3 mt-0.5 sm:mt-1">
+          <span className="text-[11px] sm:text-xs font-bold text-[#54414e]">
             Change <span className="text-[#ab0e97] underline decoration-2">only 1 letter</span> to build a valid word!
           </span>
         </div>
 
-        {/* 4 Large Active Letter Blocks */}
-        <div className="grid grid-cols-4 gap-2.5 sm:gap-3 w-full max-w-[320px] justify-center">
+        {/* 4 Active Letter Blocks */}
+        <div className="grid grid-cols-4 gap-2 sm:gap-3 w-full max-w-[270px] sm:max-w-[320px] justify-center">
           {currentWord.split('').map((char, index) => {
             const isShifted = lastShiftedIndex === index;
             return (
               <div
                 key={index}
-                className={`flex flex-col items-center justify-center h-18 sm:h-20 rounded-xl border-[3px] border-[#111111] shadow-[4px_4px_0px_#111111] relative ${
+                className={`flex flex-col items-center justify-center h-12 sm:h-20 rounded-lg sm:rounded-xl border-2 sm:border-[3px] border-[#111111] shadow-[2.5px_2.5px_0px_#111111] sm:shadow-[4px_4px_0px_#111111] relative ${
                   isShifted
-                    ? 'bg-[#f45bd7] text-[#3a0032] -translate-y-1'
+                    ? 'bg-[#f45bd7] text-[#3a0032] -translate-y-0.5 sm:-translate-y-1'
                     : 'bg-white text-[#111111]'
                 }`}
               >
                 {isShifted && (
-                  <div className="absolute -top-2.5 bg-[#ab0e97] text-white text-[8px] sm:text-[9px] font-black px-1.5 py-0.2 rounded border border-[#111111] uppercase tracking-tight">
+                  <div className="absolute -top-2 sm:-top-2.5 bg-[#ab0e97] text-white text-[7px] sm:text-[9px] font-black px-1 sm:px-1.5 py-0.2 rounded border border-[#111111] uppercase tracking-tight">
                     SHIFTED
                   </div>
                 )}
-                <span className="font-black text-2xl sm:text-3xl text-[#111111]">{char}</span>
-
+                <span className="font-black text-xl sm:text-3xl text-[#111111]">{char}</span>
               </div>
             );
           })}
         </div>
 
         {/* Chain Progress Footer */}
-        <div className="mt-4 flex items-center justify-between w-full px-2 pt-2 border-t-2 border-[#111111]/10">
-          <div className="flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-[#296c00] text-base font-bold">bolt</span>
-            <span className="text-xs font-bold text-[#111111] uppercase">
+        <div className="mt-2 sm:mt-4 flex items-center justify-between w-full px-1.5 sm:px-2 pt-1.5 sm:pt-2 border-t-2 border-[#111111]/10">
+          <div className="flex items-center gap-1 sm:gap-1.5">
+            <span className="material-symbols-outlined text-[#296c00] text-sm sm:text-base font-bold">bolt</span>
+            <span className="text-[10px] sm:text-xs font-bold text-[#111111] uppercase">
               Step {room.wordHistory?.length || 1} in chain
             </span>
           </div>
-          <div className="flex items-center gap-1 text-[#715c00] font-black text-xs uppercase">
-            <span className="material-symbols-outlined text-sm">schedule</span>
+          <div className="flex items-center gap-1 text-[#715c00] font-black text-[10px] sm:text-xs uppercase">
+            <span className="material-symbols-outlined text-xs sm:text-sm">schedule</span>
             <span>MATCH ACTIVE</span>
           </div>
         </div>
       </div>
 
       {/* 4. PLAYER TURN INPUT DECK */}
-      <div className={`flex flex-col p-4 sm:p-5 rounded-2xl border-[4px] border-[#111111] shadow-[6px_6px_0px_#111111] gap-3 relative transition-all ${
+      <div className={`flex flex-col py-2.5 px-3 sm:p-5 rounded-xl sm:rounded-2xl border-[3px] sm:border-[4px] border-[#111111] shadow-[4px_4px_0px_#111111] sm:shadow-[6px_6px_0px_#111111] gap-2 sm:gap-3 relative transition-all ${
         isMyTurn ? 'bg-[#ffd7f0]/40' : 'bg-[#eae8e0]/40 opacity-75'
       }`}>
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <span className="font-black text-sm uppercase text-[#111111]">
+          <div className="flex items-center gap-1 sm:gap-1.5">
+            <span className="font-black text-xs sm:text-sm uppercase text-[#111111]">
               {isMyTurn ? 'YOUR MOVE' : `${opponentName}'S TURN`}
             </span>
             {isMyTurn && (
-              <span className="w-2.5 h-2.5 rounded-full bg-[#a0f973] border border-[#111111] animate-ping" />
+              <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#a0f973] border border-[#111111] animate-ping" />
             )}
           </div>
-          <span className={`text-[10px] font-black px-2 py-0.5 rounded border border-[#111111] uppercase tracking-wider ${
+          <span className={`text-[9px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded border border-[#111111] uppercase tracking-wider ${
             diffCount === 1 ? 'bg-[#a0f973] text-[#072100]' : 'bg-[#ffe17b] text-[#231b00]'
           }`}>
             {diffCount === 1 ? '1 CHANGE DETECTED ✓' : `${diffCount} CHANGES (MUST BE 1)`}
@@ -461,7 +474,7 @@ export default function GamePlayScreen({
         </div>
 
         {/* 4 Interactive Letter Inputs */}
-        <div className="grid grid-cols-4 gap-2.5 sm:gap-3 w-full">
+        <div className="grid grid-cols-4 gap-2 sm:gap-3 w-full">
           {typedLetters.map((char, index) => {
             const isDiff = char.toUpperCase() !== currentChars[index];
             return (
@@ -474,13 +487,13 @@ export default function GamePlayScreen({
                   onChange={(e) => handleLetterInput(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)}
                   maxLength={1}
-                  className={`w-full h-16 sm:h-18 text-center font-black text-2xl sm:text-3xl uppercase rounded-xl border-[3px] border-[#111111] shadow-[3px_3px_0px_#111111] outline-none transition-all select-none caret-transparent ${
+                  className={`w-full h-11 sm:h-18 text-center font-black text-xl sm:text-3xl uppercase rounded-lg sm:rounded-xl border-2 sm:border-[3px] border-[#111111] shadow-[2.5px_2.5px_0px_#111111] sm:shadow-[3px_3px_0px_#111111] outline-none transition-all select-none caret-transparent ${
                     isDiff
-                      ? 'bg-[#a0f973] text-[#072100] -translate-y-1'
+                      ? 'bg-[#a0f973] text-[#072100] -translate-y-0.5 sm:-translate-y-1'
                       : 'bg-white text-[#111111] focus:bg-[#ffe17b]'
                   }`}
                 />
-                <span className={`text-[10px] font-black mt-1 uppercase ${
+                <span className={`text-[9px] sm:text-[10px] font-black mt-0.5 sm:mt-1 uppercase ${
                   isDiff ? 'text-[#296c00]' : 'text-[#87717e]'
                 }`}>
                   {isDiff ? 'NEW!' : 'SAME'}
@@ -492,7 +505,7 @@ export default function GamePlayScreen({
 
         {/* Errors & Validation Feedback */}
         {(localError || serverError) && (
-          <div className="p-2.5 bg-[#ffdad6] border-2 border-[#ba1a1a] text-[#93000a] rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-[2px_2px_0px_#ba1a1a]">
+          <div className="p-2 sm:p-2.5 bg-[#ffdad6] border-2 border-[#ba1a1a] text-[#93000a] rounded-lg sm:rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-[2px_2px_0px_#ba1a1a]">
             <span className="material-symbols-outlined text-[16px]">error</span>
             <span>{localError || serverError}</span>
           </div>
@@ -502,10 +515,10 @@ export default function GamePlayScreen({
         <button
           onClick={handleConfirmShift}
           disabled={!isMyTurn || isSubmitting || diffCount !== 1}
-          className="w-full py-3.5 sm:py-4 bg-[#a0f973] text-[#072100] font-black text-base uppercase tracking-wider rounded-xl border-[3px] border-[#111111] shadow-[4px_4px_0px_#111111] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 disabled:opacity-40"
+          className="w-full py-2.5 sm:py-4 bg-[#a0f973] text-[#072100] font-black text-sm sm:text-base uppercase tracking-wider rounded-lg sm:rounded-xl border-2 sm:border-[3px] border-[#111111] shadow-[3px_3px_0px_#111111] sm:shadow-[4px_4px_0px_#111111] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-1.5 sm:gap-2 disabled:opacity-40"
         >
           <span>{isSubmitting ? 'VERIFYING SHIFT...' : 'CONFIRM SHIFT!'}</span>
-          <span className="material-symbols-outlined text-2xl font-bold">bolt</span>
+          <span className="material-symbols-outlined text-lg sm:text-2xl font-bold">bolt</span>
         </button>
       </div>
 
@@ -518,19 +531,19 @@ export default function GamePlayScreen({
       />
 
       {/* 6. SOCIAL REACTION STRIP */}
-      <div className="flex items-center justify-between bg-white p-3 rounded-2xl border-[3px] border-[#111111] shadow-[4px_4px_0px_#111111]">
+      <div className="flex items-center justify-between bg-white py-2 px-3 sm:p-3 rounded-xl sm:rounded-2xl border-[3px] border-[#111111] shadow-[3px_3px_0px_#111111] sm:shadow-[4px_4px_0px_#111111]">
         <div className="flex items-center gap-1.5">
-          <span className="material-symbols-outlined text-[#ab0e97] text-xl font-bold">mood</span>
-          <span className="text-xs font-black uppercase text-[#111111]">REACTIONS:</span>
+          <span className="material-symbols-outlined text-[#ab0e97] text-lg sm:text-xl font-bold">mood</span>
+          <span className="text-[11px] sm:text-xs font-black uppercase text-[#111111]">REACTIONS:</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           {['🔥', '🤯', '👏', '⚡'].map((emoji) => (
             <button
               key={emoji}
               onClick={() => triggerReaction(emoji)}
               type="button"
               aria-label={`Reaction ${emoji}`}
-              className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#f5f4ec] hover:bg-[#ffe17b] border-2 border-[#111111] shadow-[2px_2px_0px_#111111] flex items-center justify-center text-lg active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all"
+              className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-[#f5f4ec] hover:bg-[#ffe17b] border-2 border-[#111111] shadow-[2px_2px_0px_#111111] flex items-center justify-center text-base sm:text-lg active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all"
             >
               {emoji}
             </button>

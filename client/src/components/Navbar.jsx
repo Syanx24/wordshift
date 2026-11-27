@@ -1,13 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
 import HowToPlayModal from './HowToPlayModal';
+import { isSoundEnabled, setSoundEnabled } from '../utils/sound';
 
 export default function Navbar() {
   const location = useLocation();
   const { session } = useGame();
   const [showHowToPlay, setShowHowToPlay] = useState(false);
-  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [soundEnabled, setSoundEnabledState] = useState(isSoundEnabled);
+
+  useEffect(() => {
+    const handleToggle = (e) => {
+      setSoundEnabledState(e.detail?.enabled ?? isSoundEnabled());
+    };
+    window.addEventListener('wordshift-sound-toggle', handleToggle);
+    return () => window.removeEventListener('wordshift-sound-toggle', handleToggle);
+  }, []);
+
+  const toggleSound = () => {
+    const next = !soundEnabled;
+    setSoundEnabledState(next);
+    setSoundEnabled(next);
+  };
 
   // Check if inside a room
   const roomPathMatch = location.pathname.match(/\/room\/([A-Za-z0-9]+)/);
@@ -15,7 +30,7 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full bg-[#fbf9f1]/95 backdrop-blur-xl border-b-[3px] border-[#111111] shadow-[0_4px_0_#111111]">
+      <header className="sticky top-0 z-50 w-full bg-[#fbf9f1]/95 backdrop-blur-xl border-b-2 border-[#111111]">
         <div className="max-w-5xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between gap-2 sm:gap-4">
           
           {/* Logo Badge (Rotated -2deg) */}
@@ -34,7 +49,7 @@ export default function Navbar() {
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* Sound Toggle Button */}
             <button
-              onClick={() => setSoundEnabled(!soundEnabled)}
+              onClick={toggleSound}
               aria-label="Toggle sound"
               className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-white border-2 border-[#111111] shadow-[2px_2px_0px_#111111] flex items-center justify-center text-[#111111] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all"
               title={soundEnabled ? 'Mute audio' : 'Unmute audio'}

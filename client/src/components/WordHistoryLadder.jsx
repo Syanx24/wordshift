@@ -15,11 +15,11 @@ export default function WordHistoryLadder({
   }, [wordHistory.length]);
 
   return (
-    <div className="w-full bg-white p-4 rounded-2xl border-[3px] border-[#111111] shadow-[4px_4px_0px_#111111] flex flex-col gap-3">
+    <div className="w-full bg-white py-2 px-3 sm:p-4 rounded-xl sm:rounded-2xl border-[3px] border-[#111111] shadow-[3px_3px_0px_#111111] sm:shadow-[4px_4px_0px_#111111] flex flex-col gap-1.5 sm:gap-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
-          <span className="material-symbols-outlined text-[#111111] text-base font-bold">alt_route</span>
-          <span className="text-xs sm:text-sm font-black uppercase tracking-wide text-[#111111]">
+          <span className="material-symbols-outlined text-[#111111] text-sm sm:text-base font-bold">alt_route</span>
+          <span className="text-[11px] sm:text-sm font-black uppercase tracking-wide text-[#111111]">
             PATH HISTORY ({wordHistory.length} STEPS)
           </span>
         </div>
@@ -29,19 +29,19 @@ export default function WordHistoryLadder({
       {/* Horizontal Transformation Chain */}
       <div
         ref={scrollRef}
-        className="flex items-center gap-2 overflow-x-auto pb-3 pt-1.5 px-2 no-scrollbar select-none"
+        className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1.5 pt-1 px-1 sm:pb-3 sm:pt-1.5 sm:px-2 no-scrollbar select-none"
       >
         {/* Step 0: Starting word */}
         <div className="flex items-center shrink-0">
-          <div className="flex flex-col bg-[#eae8e0] px-3 py-2 rounded-xl border-2 border-[#111111] shadow-[2px_2px_0px_#111111] items-center">
-            <div className="font-black text-sm tracking-widest text-[#111111]">
+          <div className="flex flex-col bg-[#eae8e0] px-2.5 py-1 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl border-2 border-[#111111] shadow-[2px_2px_0px_#111111] items-center">
+            <div className="font-black text-xs sm:text-sm tracking-widest text-[#111111]">
               {startingWord}
             </div>
-            <span className="text-[9px] text-[#54414e] uppercase font-black mt-0.5">
+            <span className="text-[8px] sm:text-[9px] text-[#54414e] uppercase font-black mt-0.5">
               Start Word
             </span>
           </div>
-          <span className="material-symbols-outlined text-[#87717e] mx-1 text-sm font-black">
+          <span className="material-symbols-outlined text-[#87717e] mx-0.5 sm:mx-1 text-xs sm:text-sm font-black">
             arrow_forward
           </span>
         </div>
@@ -58,8 +58,8 @@ export default function WordHistoryLadder({
 
           return (
             <div key={idx} className="flex items-center shrink-0">
-              <div className={`flex flex-col ${cardBg} px-3 py-2 rounded-xl border-2 border-[#111111] shadow-[2px_2px_0px_#111111] items-center`}>
-                <div className="font-black text-sm tracking-widest text-[#111111] flex">
+              <div className={`flex flex-col ${cardBg} px-2.5 py-1 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl border-2 border-[#111111] shadow-[2px_2px_0px_#111111] items-center`}>
+                <div className="font-black text-xs sm:text-sm tracking-widest text-[#111111] flex">
                   {step.word.split('').map((c, i) => (
                     <span
                       key={i}
@@ -69,12 +69,12 @@ export default function WordHistoryLadder({
                     </span>
                   ))}
                 </div>
-                <span className="text-[9px] uppercase font-black mt-0.5 text-[#54414e]">
+                <span className="text-[8px] sm:text-[9px] uppercase font-black mt-0.5 text-[#54414e]">
                   {isTarget ? 'TARGET 🎯' : (step.playerName || (step.player === 'player1' ? 'P1' : 'P2'))}
                 </span>
               </div>
               {idx < wordHistory.length - 1 && (
-                <span className="material-symbols-outlined text-[#87717e] mx-1 text-sm font-black">
+                <span className="material-symbols-outlined text-[#87717e] mx-0.5 sm:mx-1 text-xs sm:text-sm font-black">
                   arrow_forward
                 </span>
               )}

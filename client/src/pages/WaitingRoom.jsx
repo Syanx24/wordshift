@@ -5,6 +5,7 @@ import { connectSocket, getSocket } from '../services/socket';
 import { useGame } from '../context/GameContext';
 import GamePlayScreen from '../components/GamePlayScreen';
 import CountdownOverlay from '../components/CountdownOverlay';
+import { playSound } from '../utils/sound';
 
 const TARGET_PRESETS = ['WARM', 'TAIL', 'PLAY', 'DOCK', 'WIRE', 'STAR', 'MOON', 'DARK', 'FIRE', 'GOLD'];
 const MASCOTS = ['👩‍🦰', '🧑‍🦱', '🐻', '🐵', '😎'];
@@ -152,6 +153,7 @@ export default function WaitingRoom() {
     function handleWordRejected(data) {
       if (data?.error) {
         setServerMoveError(data.error);
+        playSound('invalid_word.mp3');
       }
     }
 
@@ -355,6 +357,7 @@ export default function WaitingRoom() {
         setMoveSubmitting(false);
         if (ack && !ack.success) {
           setServerMoveError(ack.error || 'Move was rejected.');
+          playSound('invalid_word.mp3');
         } else if (ack?.room) {
           setRoom(ack.room);
         }
@@ -369,9 +372,11 @@ export default function WaitingRoom() {
           setRoom(res.room);
         } else {
           setServerMoveError(res.error || 'Failed to submit move.');
+          playSound('invalid_word.mp3');
         }
       } catch (err) {
         setServerMoveError(err.response?.data?.error || 'Network error submitting move.');
+        playSound('invalid_word.mp3');
       } finally {
         setMoveSubmitting(false);
       }
